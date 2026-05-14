@@ -1,5 +1,7 @@
-const dotenv = require('dotenv');
-dotenv.config();
+// Only load dotenv in development
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
 const { MongoClient } = require('mongodb');
 
@@ -9,7 +11,7 @@ let database;
 module.exports = {
   initDB: (callback) => {
     if (!uri) {
-      console.error('MONGODB_URI is not defined in .env file');
+      console.error('MONGODB_URI is not defined in environment variables');
       return callback(new Error('MONGODB_URI not defined'));
     }
     
