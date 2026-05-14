@@ -15,7 +15,15 @@ module.exports = {
       return callback(new Error('MONGODB_URI not defined'));
     }
     
-    const client = new MongoClient(uri);
+    console.log('Attempting to connect to MongoDB...');
+    
+    // Add explicit TLS options
+    const client = new MongoClient(uri, {
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
     
     client.connect()
       .then(() => {
