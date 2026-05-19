@@ -1,0 +1,9 @@
+
+> cse341@1.0.0 start
+> node server.js
+
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+Attempting to connect to MongoDB...
+Successfully connected to MongoDB.
+Server/database is running on port 10000
+Terminated
