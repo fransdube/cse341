@@ -3,7 +3,6 @@ const { ObjectId } = require('mongodb');
 
 const getAllContacts = async (req, res) => {
     try {
-        // Fix: Remove the extra .db() - getDB() already returns the database
         const result = await mongodb.getDB().collection('contacts').find();
         const contacts = await result.toArray();
         res.json(contacts);
@@ -16,7 +15,6 @@ const getAllContacts = async (req, res) => {
 const getSingleContact = async (req, res) => {
     try {
         const contactId = new ObjectId(req.params.id);
-        // Fix: Remove the extra .db()
         const contact = await mongodb.getDB().collection('contacts').findOne({ _id: contactId });
         if (!contact) {
             return res.status(404).json({ message: 'Contact not found' });
@@ -30,13 +28,15 @@ const getSingleContact = async (req, res) => {
 
 const createContact = async (req, res) => {
     try {
-        const contact = req.body;
-        // Fix: Remove the extra .db()
+        const contact = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            email: req.body.email,
+            favoriteColor: req.body.favoriteColor,
+            birthday: req.body.birthday
+        };
         const result = await mongodb.getDB().collection('contacts').insertOne(contact);
-        res.status(201).json({ 
-            id: result.insertedId, 
-            message: 'Contact created successfully' 
-        });
+        res.status(201).json(result.insertedId);
     } catch (err) {
         console.error('Error creating contact:', err);
         res.status(500).json({ error: err.message });
@@ -46,16 +46,21 @@ const createContact = async (req, res) => {
 const updateContact = async (req, res) => {
     try {
         const contactId = new ObjectId(req.params.id);
-        const contact = req.body;
-        // Fix: Remove the extra .db()
-        const result = await mongodb.getDB().collection('contacts').updateOne(
+        const contact = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            email: req.body.email,
+            favoriteColor: req.body.favoriteColor,
+            birthday: req.body.birthday
+        };
+        const result = await mongodb.getDB().collection('contacts').replaceOne(
             { _id: contactId },
-            { $set: contact }
+            contact
         );
         if (result.matchedCount === 0) {
             return res.status(404).json({ message: 'Contact not found' });
         }
-        res.json({ message: 'Contact updated successfully' });
+        res.status(204).send();
     } catch (err) {
         console.error('Error updating contact:', err);
         res.status(500).json({ error: err.message });
@@ -65,12 +70,11 @@ const updateContact = async (req, res) => {
 const deleteContact = async (req, res) => {
     try {
         const contactId = new ObjectId(req.params.id);
-        // Fix: Remove the extra .db()
         const result = await mongodb.getDB().collection('contacts').deleteOne({ _id: contactId });
         if (result.deletedCount === 0) {
             return res.status(404).json({ message: 'Contact not found' });
         }
-        res.json({ message: 'Contact deleted successfully' });
+        res.status(204).send();
     } catch (err) {
         console.error('Error deleting contact:', err);
         res.status(500).json({ error: err.message });
